@@ -1,5 +1,7 @@
 make_test.js
 ===
+[![Build Status](https://travis-ci.org/unframed/make_test.js.png)](https://travis-ci.org/unframed/make_test.js)
+
 A practical JavaScript project prototype.
 
 It provides a template repository to: `make` a project, manage dependencies with `wget` and `git`; uglify sources; load test pages in a `phantomjs` headless browser; continuously integrate with `travis`.

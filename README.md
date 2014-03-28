@@ -2,7 +2,7 @@ make_test.js
 ===
 A practical JavaScript project prototype.
 
-It provides a template repository to: `make` a project, manage dependencies with `wget` and `git`; uglify sources; run `qunit` or any other HTML test page in a `phantomjs` headless browser; continuously integrate with `travis`.
+It provides a template repository to: `make` a project, manage dependencies with `wget` and `git`; uglify sources; load test pages in a `phantomjs` headless browser; continuously integrate with `travis`.
 
 Fork it, then depend on it to test whatever `make` can build, continuously.
 
@@ -34,10 +34,10 @@ The first and default `make` target is `test`:
 
 ~~~Makefile
 test: ugly
-    phantom.js make_test.js test
+    phantom.js run_qunit.js test
 ~~~
 
-It applies itself to load any HTML pages found in `test` and wait for test completion using the default timeout and poll interval.
+It applies itself to load any HTML pages found in `test` and wait for `qunit` test completion using the default timeout and poll interval.
 
 Note that `test` depends on `ugly`.
 
@@ -50,7 +50,7 @@ ugly: pull
     uglifyjs \
         src/make_test_run.js \
         src/make_test_qunit.js \
-        -o make_test.js \
+        -o run_qunit.js \
         -b
 ~~~
 
@@ -96,13 +96,13 @@ deps/qunit-1.14.0.css:
 Dependencies may also be git repositories.
 
 ~~~Makefile
-test:
-    phantomjs deps/make_test.js/make_test.js 
+test: ugly
+    phantomjs deps/make_test.js/run_qunit.js test 
 
 deps: deps/make_test.js
 
 deps/makes_test.js:
-    git clone https://laurentszyster/make_test.js deps/make_test.js
+    git clone https://unframed/make_test.js deps/make_test.js
 ~~~
 
 Note that you can use any other source repository software as long as there is a command line equivalent to `git pull` (`svn checkout` for instance).

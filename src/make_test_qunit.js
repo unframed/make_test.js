@@ -10,7 +10,7 @@ function make_test_qunit_result () {
 	return document.getElementById('qunit-testresult').innerText;
 }
 
-function make_test_qunit_ready (page) {
+function make_test_poll (page) {
 	var result = page.evaluate(make_test_qunit_result);
 	if (result.match(/^Running/)) {
 		return 'wait';

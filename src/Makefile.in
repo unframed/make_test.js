@@ -10,7 +10,7 @@ deps: deps/make_test.js test/qunit-1.14.0.js test/qunit-1.14.0.css
 
 deps/make_test.js:
 	git clone \
-		https://unframed/make_test.js \
+		https://github.com/unframed/make_test.js \
 		deps/make_test.js
 
 CDNJS_AJAX_LIBS = http://cdnjs.cloudflare.com/ajax/libs

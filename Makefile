@@ -33,7 +33,6 @@ new: clean
 	rm src/*
 	rm README.md -f
 	rm LICENCE.txt -f
-	rm run_qunit.js
 	rm .git -rf
 	touch README.md
 	touch deps/README.md

@@ -35,13 +35,10 @@ new: clean
 	rm LICENCE.txt -f
 	rm .git -rf
 	touch README.md
-	touch deps/README.md
-	touch src/README.md
 	git init
+	git add .gitignore
+	git add .travis.yml
 	git add Makefile
 	git add README.md
-	git add .travis.yml
-	git add test/qunit_test.html
-	git add test/qunit-1.14.0.js
-	git add test/qunit-1.14.0.css
+	git add test/*
 	git commit -m "first commit"

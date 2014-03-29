@@ -4,7 +4,7 @@ make_test.js
 
 A practical JavaScript project prototype.
 
-It provides a simple directory structure and some boilerplate to `make` a new project that manage dependencies with `wget` or `git`, compiles sources with `uglifyjs`, load `qunit` test pages in a `phantomjs` headless browser and continuously integrate with `travis`.
+It provides a simple directory structure and some boilerplate to `make` a new project that manage dependencies with `wget` or `git`, compiles sources with `uglifyjs`, load `qunit` test pages in a `phantomjs` headless browser and continuously integrate with [Travis](https://travis-ci.org/).
 
 Synopsis
 ---
@@ -17,7 +17,7 @@ cd ~/src/pro.js
 
 ### make install
 
-Make sure `make`, `wget`, `git`, `nodejs`, `uglifyjs` and `phantomjs` are installed. On Debian Sid it may be as simple as:
+Make sure `wget`, `git`, `nodejs`, `npm`, `uglifyjs` and `phantomjs` are installed. Your mileage may vary, but on Debian Sid it may be as simple as:
 
 ~~~
 make install
@@ -35,7 +35,7 @@ make new
 
 Your brand new `src/pro.js` repository is ready to be pushed to Github, registered in Travis and continuously integrated.
 
-Let's see how it will be made in its `Makefile`.
+Let's see how it will be made in its [`Makefile`](src/Makefile.in).
 
 ### make
 
@@ -60,7 +60,7 @@ For a new project, `ugly` simply depends on `pull`.
 ugly: pull
 ~~~
 
-See the `Makefile` of `make_test.js` for an example of linting and compiling ordered sources into a beautified script:
+See the [`Makefile`](Makefile) of `make_test.js` itself for an example of linting and compiling ordered sources into a beautified script:
 
 ~~~Makefile
 ugly: pull
@@ -98,7 +98,7 @@ Dependencies may be git repositories.
 deps: deps/make_test.js
 
 deps/makes_test.js:
-    git clone https://unframed/make_test.js deps/make_test.js
+    git clone https://github.com/unframed/make_test.js deps/make_test.js
 ~~~
 
 Or they may be versions of a resource, like test assets:
@@ -136,5 +136,6 @@ Use Case
 ---
 Continuous integration of components into a web applications.
 
-Using only `make` and a small set of common open source tools, project created with this prototype can integrate with other projects in a wider variety of programming languages.
+For web components the relevant automated test environment is a headless browser. So there is no actual need to commit support to `nodejs` toolchain(s) beyond `uglifyjs`.
 
+Using only `make` and a small set of common open source tools, project created with this prototype can integrate with other projects in a wider variety of programming languages.

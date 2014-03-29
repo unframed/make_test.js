@@ -1,83 +1,89 @@
-var fs = require("fs"), webpage = require("webpage"), system = require("system");
+var fs = require("fs"), webpage = require("webpage"), system = require("system"), make_test_script = system.args[0], make_test_name = system.args[1] || "test", make_test_timeout = parseInt(system.args[2] || "3000"), make_test_interval = parseInt(system.args[3] || "100");
 
-function listAbsolutePaths(directory) {
-    return fs.list(directory).map(function(path) {
-        return directory + fs.separator + path;
-    });
-}
-
-function isFileHTML(path) {
-    return fs.isFile(path) && path.match(/^.+[.]html$/);
-}
-
-var directory = fs.workingDirectory + fs.separator + "test", urls = listAbsolutePaths(directory).filter(isFileHTML), timeleft = parseInt(system.args[1] || "3000"), interval = parseInt(system.args[2] || "100"), url, page;
-
-function make_test_wait() {
-    timeleft = timeleft - interval;
-    var state = make_test_poll(page);
-    switch (state) {
-      case "wait":
-        if (timeleft > 0) {
-            setTimeout(make_test_wait, interval);
+function make_test_urls(name) {
+    function listAbsolutePaths() {
+        if (fs.isFile(name)) {
+            return [ name ];
         } else {
-            console.log("make_test.js timeout: " + url);
-            phantom.exit(2);
+            return fs.list(name).map(function(path) {
+                return name + fs.separator + path;
+            });
         }
-        break;
-
-      case "pass":
-        console.log("make_test.js pass: " + url);
-        if (urls.length > 0) {
-            make_test_loop();
-        } else {
-            phantom.exit(0);
-        }
-        break;
-
-      case "fail":
-        console.log("make_test.js fail: " + url);
-        phantom.exit(1);
-        break;
-
-      default:
-        console.log("make_test.js invalid state: " + state + " in " + url);
-        phantom.exit(4);
     }
+    function isFileHTML(path) {
+        return fs.isFile(path) && path.match(/^.+[.]html$/);
+    }
+    return listAbsolutePaths(name).filter(isFileHTML);
 }
 
-function make_test_loaded(status) {
-    if (status === "success") {
-        setTimeout(make_test_wait, interval);
+function make_test_run(make_test_poll, urls) {
+    var timeleft = make_test_timeout, url, page;
+    if (urls === undefined) {
+        urls = make_test_urls(fs.workingDirectory + fs.separator + make_test_name);
+    }
+    function make_test_wait() {
+        timeleft = timeleft - make_test_interval;
+        var state = make_test_poll(page);
+        switch (state) {
+          case "wait":
+            if (timeleft > 0) {
+                setTimeout(make_test_wait, make_test_interval);
+            } else {
+                console.log("make_test.js timeout: " + url);
+                phantom.exit(2);
+            }
+            break;
+
+          case "pass":
+            console.log("make_test.js pass: " + url);
+            if (urls.length > 0) {
+                make_test_loop();
+            } else {
+                phantom.exit(0);
+            }
+            break;
+
+          case "fail":
+            console.log("make_test.js fail: " + url);
+            phantom.exit(1);
+            break;
+
+          default:
+            console.log("make_test.js invalid state: " + state + " in " + url);
+            phantom.exit(4);
+        }
+    }
+    function make_test_loaded(status) {
+        if (status === "success") {
+            setTimeout(make_test_wait, make_test_interval);
+        } else {
+            console.log("failed to open: " + url);
+            phantom.exit(3);
+        }
+    }
+    function make_test_loop() {
+        url = urls.shift();
+        page = webpage.create();
+        page.open(url, make_test_loaded);
+    }
+    if (urls) {
+        make_test_loop();
     } else {
-        console.log("failed to open: " + url);
-        phantom.exit(3);
+        phantom.exit(0);
     }
 }
 
-function make_test_loop() {
-    url = urls.shift();
-    page = webpage.create();
-    page.open(url, make_test_loaded);
+function qunit_result() {
+    var result = document.getElementById("qunit-testresult");
+    if (result) {
+        return result.innerText;
+    } else {
+        return "Not a Qunit test page";
+    }
 }
 
-if (urls) {
-    make_test_loop();
-} else {
-    phantom.exit(0);
-}
-
-function make_test_qunit(page) {
-    return page.evaluate(function() {
-        return document.getElementById("qunit-testresult") ? true : false;
-    });
-}
-
-function make_test_qunit_result() {
-    return document.getElementById("qunit-testresult").innerText;
-}
-
-function make_test_poll(page) {
-    var result = page.evaluate(make_test_qunit_result);
+function qunit_poll(page) {
+    var result = page.evaluate(qunit_result);
     if (result.match(/^Running/)) {
         return "wait";
     } else if (result.match(/^Tests completed/)) {
@@ -86,3 +92,5 @@ function make_test_poll(page) {
         return "fail";
     }
 }
+
+make_test_run(qunit_poll);

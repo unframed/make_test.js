@@ -4,111 +4,132 @@ make_test.js
 
 A practical JavaScript project prototype.
 
-It provides a template repository to: `make` a project, manage dependencies with `wget` and `git`; uglify sources; load test pages in a `phantomjs` headless browser; continuously integrate with `travis`.
+It provides a simple directory structure and some boilerplate to `make` a new project that manage dependencies with `wget` or `git`, compiles sources with `uglifyjs`, load `qunit` test pages in a `phantomjs` headless browser and continuously integrate with `travis`.
 
-Fork it, then depend on it to test whatever `make` can build, continuously.
+Use Case
+---
+Continuous integration of components into a web applications.
+
+Using only `make` and a small set of common open source tools, project created with this prototype can integrate with other projects in a wider variety of programming languages.
 
 Synopsis
 ---
-Make sure `make`, `wget`, `git`, `nodejs`, `uglifyjs` and `phantomjs` are installed.
-
-On Debian Sid it may be as simple as:
+Clone this repository as your next JavaScript component project, for instance `src/pro.js`, then move to the newly created directory:
 
 ~~~
-sudo apt-get make wget git nodejs phantomjs
-sudo npm install uglify-js -g
+git clone https://github.com/unframed/make_test.js ~/src/pro.js
+cd ~/src/pro.js 
 ~~~
 
-Clone this repository as your next JavaScript project, change directory to this new `pro.js` directory, delete then reinitialise the local `.git` respository.
+### make install
+
+Make sure `make`, `wget`, `git`, `nodejs`, `uglifyjs` and `phantomjs` are installed. On Debian Sid it may be as simple as:
 
 ~~~
-git clone https://github.com/laurentszyster/make_test.js pro.js
-cd pro.js
-rm -rf .git
-git init
+make install
 ~~~
 
-Then adapt the `Makefile` provided to build your project.
+Note that `make install` will also create a `deps` directory.
 
-### test
+### make new
+
+You may now: reinitialise the project's repository; keep the `.travis.yml` configuration and the `test_qunit.html` test page; set a prototype `Makefile`; remove `make_test.js`'s README, LICENCE sources and dependencies; then add the new project resources to repository in a first commit.
+
+~~~
+make new
+~~~
+
+Your brand new `src/pro.js` repository is ready to be pushed to Github, registered in Travis and continuously integrated.
+
+Let's see how it is made by going through its `Makefile`.
+
+### make
 
 The first and default `make` target is `test`:
 
 ~~~Makefile
 test: ugly
-    phantom.js run_qunit.js test
+    phantom.js deps/make_test.js/run_qunit.js test
 ~~~
 
-It applies itself to load any HTML pages found in `test` and wait for `qunit` test completion using the default timeout and poll interval.
+It will load any HTML pages found in `test` and wait for `qunit` test completion using the default timeout of 3 seconds and a default poll interval of 100ms.
 
-Note that `test` depends on `ugly`.
+See [test/qunit_test.html](test/qunit_test.html) for a sample test page.
 
-### ugly
+### make ugly
 
-The `ugly` target compiles and minify JavaScript sources using `uglifyjs`:
+The `ugly` target compiles and minify JavaScript sources using `uglifyjs`.
+
+For a new project, `ugly` simply depends on `pull`.
+
+~~~Makefile
+ugly: pull
+~~~
+
+See the `Makefile` of `make_test.js` for an example of linting and compiling ordered sources into a beautified script:
 
 ~~~Makefile
 ugly: pull
     uglifyjs \
-        src/make_test_run.js \
         src/make_test_qunit.js \
+        src/make_test_run.js \
         -o run_qunit.js \
-        -b
+        -b --lint
 ~~~
 
-The `ugly` target depends on `pull`.
+Making sources "ugly" is an understatement as moshoo's gem can lint, compile, compress, mangle or beautify and enclose JavaScript sources.
 
-### pull
+### make pull
 
 To fetch and update dependencies, `make` the `pull` target.
 
-If all dependencies are statics, specific versions of resources, the `pull` is equivalent to `deps`.
-
-~~~Makefile
-pull: deps
-~~~
-
-When dependencies are dynamic, like a git repository master branch, then the `pull` target is not empty:
+When dependencies are dynamic, like a git repository master branch, then the `pull` target should not be empty:
 
 ~~~Makefile
 pull: deps
     cd deps/make_test.js && git pull origin
 ~~~
 
-In both case, it depends on `deps`.
+If all dependencies are statics, specific versions of resources, the `pull` is equivalent to `deps`.
 
-### deps
+### make deps
 
-Dependencies may be precise versions of a library:
-
-~~~Makefile
-deps: deps/qunit-1.14.0.js deps/qunit-1.14.0.css
-
-CDNJS_AJAX_LIBS = http://cdnjs.cloudflare.com/ajax/libs
-
-deps/qunit-1.14.0.js:
-    wget "${CDNJS_AJAX_LIBS}/qunit/1.14.0/qunit.js" \
-    -O "deps/qunit-1.14.0.js"
-
-deps/qunit-1.14.0.css:
-    wget "${CDNJS_AJAX_LIBS}/qunit/1.14.0/qunit.css" \
-    -O "deps/qunit-1.14.0.css"
-~~~
-
-Dependencies may also be git repositories.
+Dependencies may be git repositories.
 
 ~~~Makefile
-test: ugly
-    phantomjs deps/make_test.js/run_qunit.js test 
-
 deps: deps/make_test.js
 
 deps/makes_test.js:
     git clone https://unframed/make_test.js deps/make_test.js
 ~~~
 
-Note that you can use any other source repository software as long as there is a command line equivalent to `git pull` (`svn checkout` for instance).
+Or they may be versions of a resource, like test assets:
 
-By convention projects repositories should include distributable resources, usually minified sources.
+~~~Makefile
+deps: test/qunit-1.14.0.js test/qunit-1.14.0.css
 
-Also by convention, the dependency tree should be flat, made of what web applications should be made of in the first place: orthogonal components.
+CDNJS_AJAX_LIBS = http://cdnjs.cloudflare.com/ajax/libs
+
+test/qunit-1.14.0.js:
+    wget "${CDNJS_AJAX_LIBS}/qunit/1.14.0/qunit.js" \
+    -O "test/qunit-1.14.0.js"
+
+test/qunit-1.14.0.css:
+    wget "${CDNJS_AJAX_LIBS}/qunit/1.14.0/qunit.css" \
+    -O "test/qunit-1.14.0.css"
+~~~
+
+Note that these dependencies are not stored in `deps` but where test assets belong, in the `test` directory. 
+
+Also, to pull dependencies, you may use any other source repository software as long as there is a command line equivalent to `git pull` (like `svn checkout`).
+
+### make clean
+
+A clean project is one without dependencies:
+
+~~~Makefile
+clean:
+    rm deps/* -rf
+~~~
+
+By convention, any other resource is expected to be added to the project repository, including assets and builds.

@@ -1,17 +1,17 @@
 test: ugly
-    phantomjs deps/make_test.js/run_qunit.js
+	phantomjs deps/make_test.js/run_qunit.js
 
 ugly: pull
 
 pull: deps
-    cd deps/make_test.js && git pull origin
+	cd deps/make_test.js && git pull origin
 
 deps: deps/make_test.js test/qunit-1.14.0.js test/qunit-1.14.0.css
 
 deps/make_test.js:
-    git clone \
-        https://unframed/make_test.js \
-        deps/make_test.js
+	git clone \
+		https://unframed/make_test.js \
+		deps/make_test.js
 
 CDNJS_AJAX_LIBS = http://cdnjs.cloudflare.com/ajax/libs
 
@@ -25,6 +25,6 @@ clean:
 	rm deps/* -rf
 
 install:
-	sudo apt-get wget git nodejs phantomjs
+	sudo apt-get install wget git # nodejs npm phantomjs
 	npm install uglify-js
 	mkdir deps

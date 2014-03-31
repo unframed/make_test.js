@@ -4,7 +4,7 @@ make_test.js
 
 A practical JavaScript project prototype.
 
-It provides a simple directory structure and some boilerplate to `make` a new project that manage dependencies with `wget` or `git`, compiles sources with `uglifyjs`, load `qunit` test pages in a `phantomjs` headless browser and continuously integrate with [Travis](https://travis-ci.org/).
+This repository provides a simple directory structure and some boilerplate code to: `make` a new project that manage dependencies with `wget` or `git`; compiles sources with `uglifyjs`; load `qunit` test pages in a `phantomjs` headless browser; and continuously integrate with [Travis](https://travis-ci.org/).
 
 Synopsis
 ---
@@ -94,6 +94,8 @@ pull: deps
 
 Dependencies may be git repositories.
 
+For instance, a new project created with `make_test.js` depends on `make_test.js:
+
 ~~~Makefile
 deps: deps/make_test.js
 
@@ -135,7 +137,3 @@ By convention, all other resources are expected to be added to the project repos
 Use Case
 ---
 Continuous integration of components into a web applications.
-
-For web components the relevant automated test environment is a headless browser. So there is no actual need to commit support to `nodejs` toolchain(s) beyond `uglifyjs`.
-
-Using only `make` and a small set of common open source tools, project created with this prototype can integrate with other projects in a wider variety of programming languages.

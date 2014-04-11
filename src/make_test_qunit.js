@@ -11,9 +11,10 @@ function qunit_poll (page) {
 	var result = page.evaluate(qunit_result);
 	if (result.match(/^Running/)) {
 		return 'wait';
-	} else if (result.match(/^Tests completed/)) {
+	} else if (result.match(/, 0 failed[.]$/m)) {
 		return 'pass';
 	} else {
+		console.log(result);
 		return 'fail';
 	}
 }

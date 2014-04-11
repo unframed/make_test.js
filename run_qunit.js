@@ -29,13 +29,13 @@ function make_test_run(make_test_poll, urls) {
             if (timeleft > 0) {
                 setTimeout(make_test_wait, make_test_interval);
             } else {
-                console.log("make_test.js timeout: " + url);
+                console.log("timeout: " + url);
                 phantom.exit(2);
             }
             break;
 
           case "pass":
-            console.log("make_test.js pass: " + url);
+            console.log("pass: " + url);
             if (urls.length > 0) {
                 make_test_loop();
             } else {
@@ -44,12 +44,12 @@ function make_test_run(make_test_poll, urls) {
             break;
 
           case "fail":
-            console.log("make_test.js fail: " + url);
+            console.log("fail: " + url);
             phantom.exit(1);
             break;
 
           default:
-            console.log("make_test.js invalid state: " + state + " in " + url);
+            console.log("invalid state: " + state + " in " + url);
             phantom.exit(4);
         }
     }
@@ -86,9 +86,10 @@ function qunit_poll(page) {
     var result = page.evaluate(qunit_result);
     if (result.match(/^Running/)) {
         return "wait";
-    } else if (result.match(/^Tests completed/)) {
+    } else if (result.match(/, 0 failed[.]$/m)) {
         return "pass";
     } else {
+        console.log(result);
         return "fail";
     }
 }
